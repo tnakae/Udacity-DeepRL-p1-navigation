@@ -20,7 +20,7 @@ class DQNAgent():
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    def __init__(self, state_size, action_size, seed):
+    def __init__(self, state_size, action_size, seed, hidden_layers=[64, 64]):
         """Initialize an Agent object.
 
         Params
@@ -34,8 +34,9 @@ class DQNAgent():
         self.seed = random.seed(seed)
 
         # Q-Network
-        self.qnetwork_local = QNetwork(state_size, action_size, seed).to(self.device)
-        self.qnetwork_target = QNetwork(state_size, action_size, seed).to(self.device)
+        model_params = [state_size, action_size, seed, hidden_layers]
+        self.qnetwork_local = QNetwork(*model_params).to(self.device)
+        self.qnetwork_target = QNetwork(*model_params).to(self.device)
         self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=self.lr)
 
         # Replay memory
