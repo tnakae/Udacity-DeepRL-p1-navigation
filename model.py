@@ -30,7 +30,7 @@ class QNetwork(nn.Module):
     def forward(self, state):
         z = state
         for linear in self.hidden_layers:
-            z = F.relu(linear(z))
+            z = F.leaky_relu(linear(z))
 
         output = self.output(z)
         return output
