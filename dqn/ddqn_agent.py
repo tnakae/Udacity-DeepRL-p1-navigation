@@ -1,5 +1,5 @@
 import torch
-from dqn_agent import DQNAgent
+from dqn import DQNAgent
 
 
 class DDQNAgent(DQNAgent):
