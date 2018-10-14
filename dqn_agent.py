@@ -8,19 +8,13 @@ import torch.optim as optim
 from model import QNetwork
 from replaybuffer import ReplayBuffer
 
+
 class DQNAgent():
     """Interacts with and learns from the environment."""
 
-    buffer_size = int(1e5)  # replay buffer size
-    batch_size = 64         # minibatch size
-    gamma = 0.99            # discount factor
-    tau = 1e-3              # for soft update of target parameters
-    lr = 5e-4               # learning rate
-    update_every = 4        # how often to update the network
-
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-    def __init__(self, state_size, action_size, seed, hidden_layers=[64, 64]):
+    def __init__(self, state_size, action_size, seed, hidden_layers=[64, 64],
+                 buffer_size=int(1e5), batch_size=64, gamma=0.99, tau=1e-3,
+                 learning_rate=5e-4, update_every=4):
         """Initialize an Agent object.
 
         Params
@@ -28,16 +22,34 @@ class DQNAgent():
             state_size (int): dimension of each state
             action_size (int): dimension of each action
             seed (int): random seed
+            hidden_layers (list of int ; optional): number of each layer nodes
+            buffer_size (int ; optional): replay buffer size
+            batch_size (int; optional): minibatch size
+            gamma (float; optional): discount factor
+            tau (float; optional): for soft update of target parameters
+            learning_rate (float; optional): learning rate
+            update_every (int; optional): how often to update the network
         """
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(seed)
+        self.buffer_size = buffer_size
+        self.batch_size = batch_size
+        self.gamma = gamma
+        self.tau = tau
+        self.lr = learning_rate
+        self.update_every = update_every
+
+        # detect GPU device
+        self.device = torch.device("cuda:0" if torch.cuda.is_available()
+                                   else "cpu")
 
         # Q-Network
         model_params = [state_size, action_size, seed, hidden_layers]
         self.qnetwork_local = QNetwork(*model_params).to(self.device)
         self.qnetwork_target = QNetwork(*model_params).to(self.device)
-        self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=self.lr)
+        self.optimizer = optim.Adam(self.qnetwork_local.parameters(),
+                                    lr=self.lr)
 
         # Replay memory
         self.memory = ReplayBuffer(action_size, self.buffer_size,
